@@ -1,9 +1,9 @@
 import RPi.GPIO as gpio
 import time
 
+
 gpio.setmode(gpio.BOARD)
 gpio.setup(12, gpio.OUT)
-
 p = gpio.PWM(12, 50) // pin and frequency
 p.start(5) # Start at 0 degree
 
@@ -21,7 +21,6 @@ try:
         time.sleep(1)
         p.ChangeDutyCycle(7.5)
         time.sleep(1)
-         
 except KeyboardInterrupt:
     p.stop()
 finally:
