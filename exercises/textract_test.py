@@ -16,7 +16,7 @@ with open(documentName, 'rb') as document:
 textract = boto3.client(
          service_name='textract',
          region_name= 'eu-west-1',
-         endpoint_url='https://textract.eu-west-1.amazonaws.com'
+         endpoint_url='https://textract.eu-west-1.amazonaws.com',
 )
 
 # Call Amazon Textract

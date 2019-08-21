@@ -11,13 +11,15 @@ import boto3
 import RPi.GPIO as gpio
 import io
 import datetime
+import scrython
+import csv
 from time import sleep
 from PIL import Image
 from picamera import PiCamera
 
 
 bcm_pin_number = 6
-img = 'jaya_betterquality.jpg' # for testing
+img = '' # for testing
 path = '/home/pi/Desktop/mtg_aws_iot/project/card_images/'
 
 
@@ -25,16 +27,13 @@ def grayscale(input):
     """Converts image to grayscale and returns a byte array"""
     color_im = Image.open(input)
     bw = color_im.convert('L')
-    #bw.save(output)
-    #with open(documentName, 'rb') as document:
-        # imageBytes = bytearray(document.read())
     imgByte_array = io.BytesIO()
-    bw.save(imgByte_array, format='JPEG')
+    bw.save(imgByte_array, format='PNG')
     return imgByte_array.getvalue()
     
 def blink_when_sending_image():
-	"""Blinks the LED once when an image has been sent to AWS"""
-	pass
+    """Blinks the LED once when an image has been sent to AWS"""
+    pass
 
 
 def on_push_down(channel):
@@ -49,9 +48,14 @@ def parser_and_saver(response):
     for item in response["Blocks"]:
         if item["BlockType"] == "LINE":
             print(item["Text"])
-            print(item['Confidence'])
-            with open('cards_detected.txt', 'a+') as f:
-                f.write(item['Text'] + '\n')
+            # print(item['Confidence'])
+            # with open('cards_detected.txt', 'a+') as f:
+                # f.write(item['Text'] + '\n')
+            with open('cards.csv', 'a+') as f:
+                fieldnames = ['card_name', 'price (Euro)']
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                # writer.writeheader()
+                writer.writerow({'card_name': item['Text'], 'price (Euro)': '4'})
             break    
         
     
@@ -63,6 +67,7 @@ if __name__ == '__main__':
     )
 
     # gpio.setmode(gpio.BCM)
+    # gpio.setwarnings(False)
     # gpio.setup(bcm_pin_number, gpio.IN, pull_up_down=gpio.PUD_DOWN)
     # gpio.add_event_detect(bcm_pin_number, gpio.RISING)
     # gpio.add_event_callback(bcm_pin_number, callback=on_push_down)
