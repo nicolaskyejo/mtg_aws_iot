@@ -19,7 +19,7 @@ from picamera import PiCamera
 
 
 bcm_pin_number = 6
-img = '' # for testing
+img = 'image-21-08 16:12:18.png' # for testing
 path = '/home/pi/Desktop/mtg_aws_iot/project/card_images/'
 
 
@@ -48,7 +48,7 @@ def parser_and_saver(response):
     for item in response["Blocks"]:
         if item["BlockType"] == "LINE":
             print(item["Text"])
-            # print(item['Confidence'])
+            print(item['Confidence'])
             # with open('cards_detected.txt', 'a+') as f:
                 # f.write(item['Text'] + '\n')
             with open('cards.csv', 'a+') as f:
