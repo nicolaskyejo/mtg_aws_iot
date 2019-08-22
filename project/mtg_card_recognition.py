@@ -3,6 +3,7 @@
 The returned result is parsed and the name of the card is returned
 Eventually the result of all cards is saved to a text file and (optionally sent via sms or email)"""
 
+
 __author__ = 'Nicolas Kyejo, Riya Kaynat'
 __license__ = 'GPLv3'
 
@@ -11,9 +12,10 @@ import boto3
 import RPi.GPIO as gpio
 import io
 import datetime
+import time
 import scrython
 import csv
-from time import sleep
+import email_attachment_send # our script for sending email
 from PIL import Image
 from picamera import PiCamera
 
@@ -28,7 +30,7 @@ def grayscale(input):
     color_im = Image.open(input)
     bw = color_im.convert('L')
     imgByte_array = io.BytesIO()
-    bw.save(imgByte_array, format='PNG')
+    bw.save(imgByte_array, format='PNG') # FORMAT
     return imgByte_array.getvalue()
     
 def blink_when_sending_image():
@@ -38,7 +40,6 @@ def blink_when_sending_image():
 
 def on_push_down(channel):
     """On pressing the switch down it will do the following"""
-    print('Button pushed') # for testing
     filename = datetime.datetime.now().isoformat()[:10] + '.jpeg'
     camera.capture(path + filename)
     
@@ -74,7 +75,7 @@ if __name__ == '__main__':
     
     # camera = PiCamera()
     # camera.rotation = 180
-    # camera.resolution = (1920, 1080)
+    # camera.resolution = (800, 600)
     # camera.start_preview()
     
     
