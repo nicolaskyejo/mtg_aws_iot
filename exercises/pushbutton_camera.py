@@ -10,9 +10,11 @@ bcm_pin_number = 6
 
 
 def on_push_down(channel):
-    camera.capture(strftime("/home/pi/Desktop/mtg_aws_iot/project/image-%d-%m %H:%M:%S.png", gmtime()))
+	something = strftime("/home/pi/Desktop/mtg_aws_iot/project/image-%d-%m_%H:%M:%S.jpeg", gmtime())
+    camera.capture(something)
     camera.stop_preview()
     gpio.cleanup()
+    return something
 
 
 camera = PiCamera()
@@ -23,6 +25,7 @@ camera.start_preview()
 gpio.setmode(gpio.BCM)
 gpio.setup(bcm_pin_number, gpio.IN, pull_up_down=gpio.PUD_DOWN)
 gpio.add_event_detect(bcm_pin_number, gpio.RISING)
-gpio.add_event_callback(bcm_pin_number, callback=on_push_down)
+something = gpio.add_event_callback(bcm_pin_number, callback=on_push_down)
+print(something)
 sleep(30)
 

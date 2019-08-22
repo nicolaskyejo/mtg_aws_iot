@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A script for sending email with an attachment using gmail. The variables 'sender, receiver, passw' are read from a text file"""
+"""A script for sending email with an attachment using gmail. The variables 'sender', 'receiver', and 'passw' are read from a text file"""
 
 
 import email.encoders
@@ -11,10 +11,9 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 
 
-secretfile = '/home/pi/secrets.txt'
-filename = "cards_detected.txt"
-
-if __name__ == '__main__':
+def send_mail():
+    secretfile = '/home/pi/secrets.txt'
+    filename = "cards_detected.txt"
     with open(secretfile, 'r') as f: 
         sender = f.readline().strip()
         receiver = f.readline().strip()
@@ -39,3 +38,6 @@ if __name__ == '__main__':
     server.sendmail(sender,receiver, msg.as_string())
     server.quit()
 
+
+if __name__ == '__main__':
+    send_mail()
