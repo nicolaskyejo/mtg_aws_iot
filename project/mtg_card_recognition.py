@@ -25,7 +25,8 @@ from picamera import PiCamera
 
 
 button_switch_pin_number = 6
-led_pin = 17
+led_pin_green = 17
+#led_pin_red = 4
 path = './card_images/'
 
 def grayscale(input):
@@ -36,11 +37,11 @@ def grayscale(input):
     bw.save(imgByte_array, format='JPEG') # FORMAT
     return imgByte_array.getvalue()
     
-def blink():
+def blink(led_pin_color):
     """Blinks the LED once"""
-    gpio.output(led_pin, gpio.HIGH)
+    gpio.output(led_pin_color, gpio.HIGH)
     time.sleep(2)
-    gpio.output(led_pin, gpio.LOW)
+    gpio.output(led_pin_color, gpio.LOW)
 
 
 def on_push_down():
@@ -61,7 +62,6 @@ def parser_and_saver(response):
             if item['Confidence'] < 50: break # if confidence is less than 50% don't continue
             try:
                 set_code, price, img_url = scryfall_request(item["Text"])
-                blink() # Blink LED when a valid card has been found
             except TypeError:
                 break 
 
@@ -83,8 +83,10 @@ def scryfall_request(card_name):
     r = requests.get(url=url, params=parameters)
     if r.status_code == 404:
         print(f'Could not find a card with the name {card_name}')
+        # blink(led_pin_red) # Blink red LED when an invalid card has been found
         return
-    else:    
+    else:
+        blink(led_pin_green) # Blink green LED when a valid card has been found    
         content = r.json()
         price = content['prices']['eur']
         card_image = content['image_uris']['normal']
@@ -114,16 +116,17 @@ if __name__ == '__main__':
     gpio.setmode(gpio.BCM)
     gpio.setwarnings(False)
     gpio.setup(button_switch_pin_number, gpio.IN, pull_up_down=gpio.PUD_DOWN)
-    gpio.setup(led_pin, gpio.OUT)
+    gpio.setup(led_pin_green, gpio.OUT)
+    # gpio.setup(led_pin_red, gpio.OUT)
     camera = PiCamera()
     camera.rotation = 180
     camera.resolution = (800, 600)
-    camera.start_preview()
+    camera.start_preview(fullscreen=False, window=(100,200,800,600))
             
     while True:
         try:
             gpio.add_event_detect(button_switch_pin_number, gpio.RISING, bouncetime=1000)
-            gpio.wait_for_edge(button_switch_pin_number, gpio.FALLING) # wait for switch to be pressed
+            gpio.wait_for_edge(button_switch_pin_number, gpio.BOTH) # wait for switch to be pressed
             if gpio.event_detected(button_switch_pin_number):
                 filepath = on_push_down()
                 response = textract.detect_document_text(Document={'Bytes': grayscale(filepath)}) # Make connection to AWS Textract and send image
