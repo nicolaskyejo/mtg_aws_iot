@@ -26,8 +26,7 @@ from picamera import PiCamera
 
 button_switch_pin_number = 6
 led_pin = 17
-path = '/home/pi/Desktop/mtg_aws_iot/project/card_images/'
-#img = path + '1.png' # for testing
+path = './card_images/'
 
 def grayscale(input):
     """Converts image to grayscale and returns a byte array"""
@@ -38,7 +37,7 @@ def grayscale(input):
     return imgByte_array.getvalue()
     
 def blink():
-    """Blinks the LED once when an image has been sent to AWS"""
+    """Blinks the LED once"""
     gpio.output(led_pin, gpio.HIGH)
     time.sleep(2)
     gpio.output(led_pin, gpio.LOW)
@@ -47,7 +46,7 @@ def blink():
 def on_push_down():
     """On pressing the switch down a picture will be taken
     Returns the file path for the picture taken"""
-    filename = datetime.datetime.now().isoformat()[:-7] + '.jpeg'
+    filename = datetime.datetime.now().isoformat()[:-7].replace(':','-') + '.jpeg' # Make Linux/Windows compatible files
     filepath = path + filename
     camera.capture(filepath)
     return filepath
@@ -62,7 +61,7 @@ def parser_and_saver(response):
             if item['Confidence'] < 50: break # if confidence is less than 50% don't continue
             try:
                 set_code, price, img_url = scryfall_request(item["Text"])
-                blink()
+                blink() # Blink LED when a valid card has been found
             except TypeError:
                 break 
 
@@ -90,10 +89,10 @@ def scryfall_request(card_name):
         price = content['prices']['eur']
         card_image = content['image_uris']['normal']
         set_code = content['set']
-        print(price)
-        print(card_image)
-        print(set_code)
-        # webbrowser.open(card_image)
+        print(price) #for debugging
+        print(card_image) #for debugging
+        print(set_code) #for debugging
+        webbrowser.open(card_image) # open web browser to check if the card is the same
         return set_code, price, card_image
 
 def graceful_quit():
@@ -124,14 +123,11 @@ if __name__ == '__main__':
     while True:
         try:
             gpio.add_event_detect(button_switch_pin_number, gpio.RISING, bouncetime=1000)
-            #gpio.add_event_callback(button_switch_pin_number, callback=on_push_down) # some way of getting the filepath variable
-            gpio.wait_for_edge(button_switch_pin_number, gpio.FALLING)
+            gpio.wait_for_edge(button_switch_pin_number, gpio.FALLING) # wait for switch to be pressed
             if gpio.event_detected(button_switch_pin_number):
                 filepath = on_push_down()
-                response = textract.detect_document_text(Document={'Bytes': grayscale(filepath)})
+                response = textract.detect_document_text(Document={'Bytes': grayscale(filepath)}) # Make connection to AWS Textract and send image
                 parser_and_saver(response)
-                time.sleep(1)
-                print('Ready for next image...')
                 gpio.remove_event_detect(button_switch_pin_number)
                 answer = input('Do you want to continue [Y/N]\n').lower()
                 if answer == 'y': continue
