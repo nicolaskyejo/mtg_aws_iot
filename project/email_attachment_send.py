@@ -12,7 +12,8 @@ from email.mime.text import MIMEText
 
 
 def send_mail():
-    secretfile = '/home/pi/secrets.txt'
+    """Send mail with a text attachment"""
+    secretfile = '/home/pi/secrets.txt' # location of the text file containing 'sender', 'receiver', and 'passw' in each respective line and order
     filename = "cards_detected.txt"
     with open(secretfile, 'r') as f: 
         sender = f.readline().strip()
@@ -34,8 +35,8 @@ def send_mail():
     # access Gmail account and send email
     server = smtplib.SMTP("smtp.gmail.com:587")
     server.starttls()
-    server.login(sender,passw)
-    server.sendmail(sender,receiver, msg.as_string())
+    server.login(sender, passw)
+    server.sendmail(sender, receiver, msg.as_string())
     server.quit()
 
 

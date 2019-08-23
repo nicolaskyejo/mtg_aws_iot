@@ -56,8 +56,8 @@ def parser_and_saver(response):
     """Parses the response and saves the result"""
     for item in response["Blocks"]:
         if item["BlockType"] == "LINE":
-            print(item["Text"])
-            print(f'{item["Confidence"]:.2f}')
+            print(item["Text"]) # for debugging
+            print(f'{item["Confidence"]:.2f}') # for debugging
             if item['Confidence'] < 50: break # if confidence is less than 50% don't continue
             try:
                 set_code, price, img_url = scryfall_request(item["Text"])
@@ -76,7 +76,7 @@ def parser_and_saver(response):
         
 
 def scryfall_request(card_name):
-    """Makes a request to scryfall.com and returns set code, price, and car image url"""
+    """Makes a request to scryfall.com and returns set code, price, and card image url"""
     url = 'https://api.scryfall.com/cards/named?'
     parameters = {'fuzzy': card_name, 'format': 'json'}
 
@@ -89,14 +89,14 @@ def scryfall_request(card_name):
         price = content['prices']['eur']
         card_image = content['image_uris']['normal']
         set_code = content['set']
-        print(price) #for debugging
-        print(card_image) #for debugging
-        print(set_code) #for debugging
+        print(price) # for debugging
+        print(card_image) # for debugging
+        print(set_code) #f or debugging
         webbrowser.open(card_image) # open web browser to check if the card is the same
         return set_code, price, card_image
 
 def graceful_quit():
-    """Quit the program and send email"""
+    """Send email using an imported function and quit the program"""
     camera.stop_preview()
     print('Sending mail & cleaning up...')
     email_attachment_send.send_mail()
